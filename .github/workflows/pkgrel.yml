@@ -129,17 +129,32 @@ jobs:
     #  working-directory: ${{ github.workspace }}/dist
     #  run: |
     #    find . -mindepth 1 -exec gpg --yes --detach-sig '{}' \;
+    #
+    - name: Set Directory
+      run: |
+        cd ${{ github.workspace }}/repo
 
     - name: Bump version and push tag
       id:   tag_version
       uses: mathieudutour/github-tag-action@v6.1
-      working-directory: ${{ github.workspace }}/repo
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Release
       uses: softprops/action-gh-release@v1
-      working-directory: ${{ github.workspace }}/repo
+      with:
+        tag_name: ${{ steps.tag_version.outputs.new_tag }}
+        fail_on_unmatched_files: true
+        generate_release_notes: true
+
+    - name: Bump version and push tag
+      id:   tag_version
+      uses: mathieudutour/github-tag-action@v6.1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ steps.tag_version.outputs.new_tag }}
         fail_on_unmatched_files: true
@@ -151,7 +166,6 @@ jobs:
 
     # TODO new image
     - name: Authenticate with Docker Hub
-      working-directory: ${{ github.workspace }}/repo
       run: |
         docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
       env:
@@ -159,7 +173,6 @@ jobs:
         DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
 
     - name: Build Docker Image
-      working-directory: ${{ github.workspace }}/repo
       run: |
         docker build -t "innovanon/aircrack-pg:$TEAMHACK_VERSION" .
       env:
@@ -173,7 +186,6 @@ jobs:
       #x86-avx512
 
     - name: Tag Docker Image
-      working-directory: ${{ github.workspace }}/repo
       run: |
         docker tag      "innovanon/aircrack-pg:$TEAMHACK_VERSION" \
                          innovanon/aircrack-pg:latest
@@ -181,7 +193,6 @@ jobs:
         TEAMHACK_VERSION: ${{ steps.tag_version.outputs.new_tag }}
 
     - name: Deploy Docker Image
-      working-directory: ${{ github.workspace }}/repo
       run: |
         docker push      innovanon/aircrack-pg
 
