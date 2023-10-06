@@ -64,11 +64,7 @@ jobs:
         fail_on_unmatched_files: true
         generate_release_notes: true
         files: |
-          Dockerfile
-          Dockerfile.gpg
-          docker-compose.yaml
-          docker-compose.yaml.gpg
-      #  dist/*
+          *
 
     # TODO new image
     - name: Authenticate with Docker Hub
