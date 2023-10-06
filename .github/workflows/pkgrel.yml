@@ -1,4 +1,4 @@
-name: AirCrack-NG Compiled for PGO
+name: AirCrack-NG Compiled with PGO
 permissions:
   contents: write
 
@@ -10,9 +10,9 @@ on:
     #- cron: '* * 1 * *'
     #- cron: '*/1 * * * *'
   push:
-    branches: [ "pgo" ]
+    branches: [ "pg" ]
   pull_request:
-    branches: [ "pgo" ]
+    branches: [ "pg" ]
 
 jobs:
   build:
@@ -142,7 +142,7 @@ jobs:
 
     - name: Build Docker Image
       run: |
-        docker build -t "innovanon/aircrack-pgo:$TEAMHACK_VERSION" .
+        docker build -t "innovanon/aircrack-pg:$TEAMHACK_VERSION" .
       env:
         TEAMHACK_VERSION: ${{ steps.tag_version.outputs.new_tag }}
         CFLAGS: -march=nehalem -mtune=nehalem -mfpmath=sse+387 -m80387 -mno-dax -mno-aes -mno-avx -mno-avx2 -mcrc32 -mcx16 -mfancy-math-387 -mmmx -msse -msse2 -mno-sse2avx -msse3 -msse4 -msse4.1 -msse4.2 -mno-sse4a -msseregparm -mssse3
@@ -155,14 +155,14 @@ jobs:
 
     - name: Tag Docker Image
       run: |
-        docker tag      "innovanon/aircrack-pgo:$TEAMHACK_VERSION" \
-                         innovanon/aircrack-pgo:latest
+        docker tag      "innovanon/aircrack-pg:$TEAMHACK_VERSION" \
+                         innovanon/aircrack-pg:latest
       env:
         TEAMHACK_VERSION: ${{ steps.tag_version.outputs.new_tag }}
 
     - name: Deploy Docker Image
       run: |
-        docker push      innovanon/aircrack-pgo
+        docker push      innovanon/aircrack-pg
 
     # Service containers to run with `container-job`
     #services:

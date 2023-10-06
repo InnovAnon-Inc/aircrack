@@ -48,10 +48,10 @@ WORKDIR /aircrack-ng
 
   #-msse5                                -mavx
 ARG  CFLAGS
-ENV  CFLAGS=" $CFLAGS -fprofile-generate=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -march=native -mfpmath=sse+387 -momit-leaf-frame-pointer -mtune=native -Ofast -g0 -fmerge-all-constants -fomit-frame-pointer"
+ENV  CFLAGS=" $CFLAGS -fprofile-use=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -march=native -mfpmath=sse+387 -momit-leaf-frame-pointer -mtune=native -Ofast -g0 -fmerge-all-constants -fomit-frame-pointer"
 
 ARG LDFLAGS
-ENV LDFLAGS="$LDFLAGS -fprofile-generate=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -lgcov"
+ENV LDFLAGS="$LDFLAGS -fprofile-use=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -lgcov"
 
 ARG SIMD
 
