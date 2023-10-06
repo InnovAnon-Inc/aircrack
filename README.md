@@ -1,4 +1,4 @@
-# aircrack [![aircrack](https://github.com/InnovAnon-Inc/aircrack/actions/workflows/pkgrel.yml/badge.svg)](https://github.com/InnovAnon-Inc/aircrack/actions/workflows/pkgrel.yml)
+# aircrack-pgo [![aircrack-pgo](https://github.com/InnovAnon-Inc/aircrack/actions/workflows/pkgrel.yml/badge.svg?branch=pgo)](https://github.com/InnovAnon-Inc/aircrack/actions/workflows/pkgrel.yml)
 ==========
 
 # Innovations Anonymous
