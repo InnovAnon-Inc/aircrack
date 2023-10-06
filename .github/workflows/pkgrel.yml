@@ -36,8 +36,8 @@ jobs:
       with:
         fetch-depth:       1
         path:              aircrack-ng
-        recursive:         true
         ref:               main
+        submodules:        true
       env:
         NESTED_SUBMODULES: true
     
