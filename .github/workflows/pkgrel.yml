@@ -41,7 +41,11 @@ jobs:
     - name: Load Environment Variables
       run: |
         export $(grep -v '^#' nehalem.env | xargs -0)
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 7128ab88180cc55fd943f1edf982f779b3ec6b60
     # TODO new image
     - name: Configure GPG Key
       run: |
@@ -49,6 +53,14 @@ jobs:
         #echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
       env:
         GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+<<<<<<< HEAD
+=======
+
+    - name: Sign Installation Package
+      run: |
+        gpg --yes --detach-sig Dockerfile
+        gpg --yes --detach-sig docker-compose.yaml
+>>>>>>> 7128ab88180cc55fd943f1edf982f779b3ec6b60
 
     - name: Sign Installation Package
       run: |
@@ -93,5 +105,9 @@ jobs:
 
     - name: Deploy Docker Image
       run: |
+<<<<<<< HEAD
         docker push      innovanon/aircrack-pg
+=======
+        docker push      innovanon/aircrack-pgo
+>>>>>>> 7128ab88180cc55fd943f1edf982f779b3ec6b60
 
