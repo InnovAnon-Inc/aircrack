@@ -55,8 +55,6 @@ ENV LDFLAGS="$LDFLAGS -fprofile-generate=/var/teamhack/pgo/aircrack-ng.prof -fpr
 
 ARG SIMD
 
-# TODO reasonable way to upload PGO data
-COPY ./pgo/* /var/teamhack/pgo/
 RUN autoreconf -fi
 RUN ./configure    \
   --without-opt    \
