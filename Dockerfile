@@ -40,7 +40,7 @@ RUN apt autoremove   -y            \
 &&  apt clean        -y            \
 &&  rm -rf /var/lib/apt/lists/*
 
-COPY   ./aircrack-ng ./
+COPY   ./aircrack-ng /aircrack-ng
 
 WORKDIR /aircrack-ng
 
