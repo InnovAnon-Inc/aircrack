@@ -35,8 +35,12 @@ jobs:
     
     - name: Move AirCrack-NG into Place
       run: |
-        mv -v  main/aircrack-ng ./
+        mv -v  main/aircrack-ng main/.github/config/nehalem.env ./
         rm -fr main
+
+    - name: Load Environment Variables
+      run: |
+        export $(grep -v '^#' nehalem.env | xargs -0)
     
     # TODO new image
     - name: Configure GPG Key
@@ -79,13 +83,6 @@ jobs:
         docker build -t "innovanon/aircrack-pg:$TEAMHACK_VERSION" .
       env:
         TEAMHACK_VERSION: ${{ steps.tag_version.outputs.new_tag }}
-        CFLAGS: -march=nehalem -mtune=nehalem -mfpmath=sse+387 -m80387 -mno-dax -mno-aes -mno-avx -mno-avx2 -mcrc32 -mcx16 -mfancy-math-387 -mmmx -msse -msse2 -mno-sse2avx -msse3 -msse4 -msse4.1 -msse4.2 -mno-sse4a -msseregparm -mssse3
-        LDFLAGS:
-        SIMD: x86-sse2
-      #x86-avx
-      #x86-sse2
-      #x86-avx2
-      #x86-avx512
 
     - name: Tag Docker Image
       run: |
