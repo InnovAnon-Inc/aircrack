@@ -1,0 +1,97 @@
+name: AirCrack-NG Compiled with PGO
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+  #[workflow_call]
+  schedule:
+    - cron: '* * */1 * *'
+    #- cron: '* * 1 * *'
+    #- cron: '*/1 * * * *'
+  push:
+    branches: [ "pg" ]
+  pull_request:
+    branches: [ "pg" ]
+
+jobs:
+  build:
+    name: build package
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      
+    - name: Checkout AirCrack-NG Submodule
+      uses: actions/checkout@v3
+      with:
+        fetch-depth:       1
+        path:              main
+        ref:               main
+        submodules:        true
+      env:
+        NESTED_SUBMODULES: true
+    
+    - name: Move AirCrack-NG into Place
+      run: |
+        mv -v  main/aircrack-ng main/.github/config/nehalem.env ./
+        rm -fr main
+
+    - name: Load Environment Variables
+      run: |
+        export $(grep -v '^#' nehalem.env | xargs -0)
+    
+    # TODO new image
+    - name: Configure GPG Key
+      run: |
+        echo -n "$GPG_SIGNING_KEY" | gpg --import
+        #echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
+      env:
+        GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+
+    - name: Sign Installation Package
+      run: |
+        gpg --yes --detach-sig Dockerfile
+        gpg --yes --detach-sig docker-compose.yaml
+    
+    - name: Bump version and push tag
+      id:   tag_version
+      uses: mathieudutour/github-tag-action@v6.1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.tag_version.outputs.new_tag }}
+        fail_on_unmatched_files: true
+        generate_release_notes: true
+        files: |
+          *
+
+    # TODO new image
+    - name: Authenticate with Docker Hub
+      run: |
+        docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    - name: Build Docker Image
+      run: |
+        docker build -t "innovanon/aircrack-pg:$TEAMHACK_VERSION" .
+      env:
+        TEAMHACK_VERSION: ${{ steps.tag_version.outputs.new_tag }}
+
+    - name: Tag Docker Image
+      run: |
+        docker tag      "innovanon/aircrack-pg:$TEAMHACK_VERSION" \
+                         innovanon/aircrack-pg:latest
+      env:
+        TEAMHACK_VERSION: ${{ steps.tag_version.outputs.new_tag }}
+
+    - name: Deploy Docker Image
+      run: |
+        docker push      innovanon/aircrack-pg
+
