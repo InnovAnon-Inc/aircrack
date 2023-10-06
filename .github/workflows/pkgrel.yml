@@ -131,15 +131,15 @@ jobs:
     #    find . -mindepth 1 -exec gpg --yes --detach-sig '{}' \;
 
     - name: Bump version and push tag
-      working-directory: ${{ github.workspace }}/repo
       id:   tag_version
       uses: mathieudutour/github-tag-action@v6.1
+      working-directory: ${{ github.workspace }}/repo
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Release
-      working-directory: ${{ github.workspace }}/repo
       uses: softprops/action-gh-release@v1
+      working-directory: ${{ github.workspace }}/repo
       with:
         tag_name: ${{ steps.tag_version.outputs.new_tag }}
         fail_on_unmatched_files: true
