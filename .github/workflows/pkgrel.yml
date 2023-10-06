@@ -19,17 +19,9 @@ jobs:
     name: build package
     runs-on: ubuntu-latest
     steps:
-    #- name: install build deps
-    #  uses: awalsh128/cache-apt-pkgs-action@latest
-    #  with:
-    #    packages: >
-    #      libpq-dev python3 python-is-python3 python3-pip
-    #    version: 1.0
     
     - name: Checkout Code
       uses: actions/checkout@v3
-      with:
-        path: repo
       
     - name: Checkout AirCrack-NG Submodule
       uses: actions/checkout@v3
@@ -43,114 +35,27 @@ jobs:
     
     - name: Move AirCrack-NG into Place
       run: |
-        mv -v main/aircrack-ng repo/
+        mv -v  main/aircrack-ng ./
+        rm -fr main
     
-    
-    #- name: Build Deps
-    #  run: |
-    #    pip install build
-
-    #- name: Optional Build Deps
-    #  run: |
-    #    pip install -e '.[dev]'
-    #
-    #- name: Bump version and push tag Dryrun
-    #  id:   tag_version_dryrun
-    #  uses: mathieudutour/github-tag-action@v6.1
-    #  with:
-    #    github_token: ${{ secrets.GITHUB_TOKEN }}
-    #    tag_prefix:
-    #    dry_run: true
-    #
-    #- name: Build
-    #  run: |
-    #    python -m build
-    #  env:
-    #    TEAMHACK_VERSION: ${{ steps.tag_version_dryrun.outputs.new_tag }}
-
     # TODO new image
-    #- name: Install
-    #  run: |
-    #    pip install dist/*
+    - name: Configure GPG Key
+      run: |
+        echo -n "$GPG_SIGNING_KEY" | gpg --import
+        #echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
+      env:
+        GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
 
-    #- name: Test Deps
-    #  run: |
-    #    #pip install '.[test]'
-    #    pip install coverage pytest
-
-    #- name: DB
-    #  run: |
-    #    #sudo createuser  user
-    #    #sudo createdb -O user db
-    #    echo '[postgresql]'    >  etc/test_database.ini
-    #    echo host=localhost    >> etc/test_database.ini
-    #    echo database=postgres >> etc/test_database.ini
-    #    echo user=postgres     >> etc/test_database.ini
-    #    echo password=postgres >> etc/test_database.ini
-   
-    # TODO 
-    #- name: Integration Test
-    #  run: |
-    #    python -m pytest
-    #    #python -m coverage run
+    - name: Sign Installation Package
+      run: |
+        gpg --yes --detach-sig Dockerfile
+        gpg --yes --detach-sig docker-compose.yaml
     
-    ## TODO new image
-    #- name: Release Deps
-    #  run: |
-    #    #pip install '.[rel]'
-    #    pip install twine
-
-    #- name: Configure Twine
-    #  run: |
-    #    echo '[pypi]'                       >  ~/.pypirc
-    #    echo 'username = __token__'         >> ~/.pypirc
-    #    echo "password = $PYPI_API_TOKEN"   >> ~/.pypirc
-    #
-    #    echo '[testpypi]'                   >> ~/.pypirc
-    #    echo 'username = __token__'         >> ~/.pypirc
-    #    echo "password = $TESTPYPI_API_KEY" >> ~/.pypirc
-    #  env:
-    #    PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-
-    #- name: Release
-    # run: |
-    #    #python3 -m twine upload --repository testpypi --verbose dist/*
-    #    python3 -m twine upload --repository     pypi --verbose dist/*
-
-    # TODO new image
-    #- name: Configure GPG Key
-    #  run: |
-    #    echo -n "$GPG_SIGNING_KEY" | gpg --import
-    #    #echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
-    #  env:
-    #    GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
-
-    #- name: Sign Installation Package
-    #  working-directory: ${{ github.workspace }}/dist
-    #  run: |
-    #    find . -mindepth 1 -exec gpg --yes --detach-sig '{}' \;
-    #
     - name: Bump version and push tag
       id:   tag_version
       uses: mathieudutour/github-tag-action@v6.1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-      working-directory: ${{ github.workspace }}/repo
-
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: ${{ steps.tag_version.outputs.new_tag }}
-        fail_on_unmatched_files: true
-        generate_release_notes: true
-      working-directory: ${{ github.workspace }}/repo
-
-    - name: Bump version and push tag
-      id:   tag_version
-      uses: mathieudutour/github-tag-action@v6.1
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-      working-directory: ${{ github.workspace }}/repo
 
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -160,8 +65,9 @@ jobs:
         generate_release_notes: true
         files: |
           Dockerfile
+          Dockerfile.gpg
           docker-compose.yaml
-      working-directory: ${{ github.workspace }}/repo
+          docker-compose.yaml.gpg
       #  dist/*
 
     # TODO new image
@@ -171,7 +77,6 @@ jobs:
       env:
         DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
-      working-directory: ${{ github.workspace }}/repo
 
     - name: Build Docker Image
       run: |
@@ -181,7 +86,6 @@ jobs:
         CFLAGS: -march=nehalem -mtune=nehalem -mfpmath=sse+387 -m80387 -mno-dax -mno-aes -mno-avx -mno-avx2 -mcrc32 -mcx16 -mfancy-math-387 -mmmx -msse -msse2 -mno-sse2avx -msse3 -msse4 -msse4.1 -msse4.2 -mno-sse4a -msseregparm -mssse3
         LDFLAGS:
         SIMD: x86-sse2
-      working-directory: ${{ github.workspace }}/repo
       #x86-avx
       #x86-sse2
       #x86-avx2
@@ -193,29 +97,8 @@ jobs:
                          innovanon/aircrack-pg:latest
       env:
         TEAMHACK_VERSION: ${{ steps.tag_version.outputs.new_tag }}
-      working-directory: ${{ github.workspace }}/repo
 
     - name: Deploy Docker Image
       run: |
         docker push      innovanon/aircrack-pg
-      working-directory: ${{ github.workspace }}/repo
-
-    # Service containers to run with `container-job`
-    #services:
-    #  # Label used to access the service container
-    #  postgres:
-    #    # Docker Hub image
-    #    image: postgres
-    #    # Provide the password for postgres
-    #    env:
-    #      POSTGRES_PASSWORD: postgres
-    #    # Set health checks to wait until postgres has started
-    #    options: >-
-    #      --health-cmd pg_isready
-    #      --health-interval 10s
-    #      --health-timeout 5s
-    #      --health-retries 5
-    #    ports:
-    #      # Maps tcp port 5432 on service container to the host
-    #      - 5432:5432
 
