@@ -128,15 +128,13 @@ jobs:
     #  run: |
     #    find . -mindepth 1 -exec gpg --yes --detach-sig '{}' \;
     #
-    - name: Set Directory
-      run: |
-        cd ${{ github.workspace }}/repo
 
     - name: Bump version and push tag
       id:   tag_version
       uses: mathieudutour/github-tag-action@v6.1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+      working-directory: ${{ github.workspace }}/repo
 
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -147,6 +145,7 @@ jobs:
         files: |
           Dockerfile
           docker-compose.yaml
+      working-directory: ${{ github.workspace }}/repo
       #  dist/*
 
     # TODO new image
@@ -156,6 +155,7 @@ jobs:
       env:
         DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+      working-directory: ${{ github.workspace }}/repo
 
     - name: Build Docker Image
       run: |
@@ -165,6 +165,7 @@ jobs:
         CFLAGS: -march=nehalem -mtune=nehalem -mfpmath=sse+387 -m80387 -mno-dax -mno-aes -mno-avx -mno-avx2 -mcrc32 -mcx16 -mfancy-math-387 -mmmx -msse -msse2 -mno-sse2avx -msse3 -msse4 -msse4.1 -msse4.2 -mno-sse4a -msseregparm -mssse3
         LDFLAGS:
         SIMD: x86-sse2
+      working-directory: ${{ github.workspace }}/repo
       #x86-avx
       #x86-sse2
       #x86-avx2
@@ -176,10 +177,12 @@ jobs:
                          innovanon/aircrack-pgo:latest
       env:
         TEAMHACK_VERSION: ${{ steps.tag_version.outputs.new_tag }}
+      working-directory: ${{ github.workspace }}/repo
 
     - name: Deploy Docker Image
       run: |
         docker push      innovanon/aircrack-pgo
+      working-directory: ${{ github.workspace }}/repo
 
     # Service containers to run with `container-job`
     #services:
