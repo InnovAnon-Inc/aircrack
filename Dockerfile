@@ -47,13 +47,13 @@ WORKDIR /aircrack-ng
 #RUN find . -type f -exec sed -i 's@-O3@-Ofast@g' '{}' +
 
   #-msse5                                -mavx
-ARG  CFLAGS="-march=nehalem -mtune=nehalem -mfpmath=sse+387 -m80387 -mno-dax -mno-aes -mno-avx -mno-avx2 -mcrc32 -mcx16 -mfancy-math-387 -mmmx -msse -msse2 -mno-sse2avx -msse3 -msse4 -msse4.1 -msse4.2 -mno-sse4a -msseregparm -mssse3"
+ARG  CFLAGS
 ENV  CFLAGS=" $CFLAGS -fprofile-generate=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -march=native -mfpmath=sse+387 -momit-leaf-frame-pointer -mtune=native -Ofast -g0 -fmerge-all-constants -fomit-frame-pointer"
 
 ARG LDFLAGS
 ENV LDFLAGS="$LDFLAGS -fprofile-generate=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -lgcov"
 
-ARG SIMD=x86-sse2
+ARG SIMD
 
 RUN autoreconf -fi
 RUN ./configure    \
@@ -61,10 +61,6 @@ RUN ./configure    \
   --disable-shared \
   --enable-static  \
   "--with-static-simd=$SIMD"
-#x86-avx
-#x86-sse2
-#x86-avx2
-#x86-avx512
 RUN make
 RUN make install-strip
 
