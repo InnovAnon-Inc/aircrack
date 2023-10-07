@@ -47,11 +47,14 @@ WORKDIR /aircrack-ng
 #RUN find . -type f -exec sed -i 's@-O3@-Ofast@g' '{}' +
 
   #-msse5                                -mavx
+
+ARG NPROC
+
 ARG  CFLAGS
-ENV  CFLAGS=" $CFLAGS -fprofile-use=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -march=native -mfpmath=sse+387 -momit-leaf-frame-pointer -mtune=native -Ofast -g0 -fmerge-all-constants -fomit-frame-pointer"
+ENV  CFLAGS=" $CFLAGS -fprofile-use=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -momit-leaf-frame-pointer -Ofast -g0 -fmerge-all-constants -fomit-frame-pointer -ftree-parallelize-loops=$NPROC"
 
 ARG LDFLAGS
-ENV LDFLAGS="$LDFLAGS -fprofile-use=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -lgcov"
+ENV LDFLAGS="$LDFLAGS -fprofile-use=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -fmerge-all-constants -fomit-frame-pointer -ftree-parallelize-loop=$NPROC -lgcov"
 
 ARG SIMD
 

@@ -8,7 +8,7 @@ services:
     #  - "0.0.0.0:55432:55432/tcp"
     volumes:
       - aircaps:/var/teamhack/caps:ro
-      - ./htw/aircrack/pgo/:/var/teamhack/pgo:ro
+      - ./pgo/:/var/teamhack/pgo:ro
       - airpsks:/var/teamhack/psks:rw
       - wordlists:/var/teamhack/wordlists:ro
     command: ["-w", "/var/teamhack/wordlists/$TEAMHACK_WORDLIST", "-b", $TEAMHACK_BSSID, "-l", "/var/teamhack/psks/$TEAMHACK_BSSID.psk", "/var/teamhack/caps/bssid/$TEAMHACK_BSSID.cap"]
