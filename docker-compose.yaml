@@ -8,12 +8,12 @@ services:
     #  - "0.0.0.0:55432:55432/tcp"
     volumes:
       - aircaps:/var/teamhack/caps:ro
-      - ./pgo/:/var/teamhack/pgo:rw
+      - ./htw/aircrack/pgo/:/var/teamhack/pgo:rw
       - airpsks:/var/teamhack/psks:rw
       - wordlists:/var/teamhack/wordlists:ro
     command: ["-w", "/var/teamhack/wordlists/$TEAMHACK_WORDLIST", "-b", $TEAMHACK_BSSID, "-l", "/var/teamhack/psks/$TEAMHACK_BSSID.psk", "/var/teamhack/caps/bssid/$TEAMHACK_BSSID.cap"]
       #- syslog-client:/etc/rsyslog.d:ro
-    restart:         always
+    restart: no
     #network_mode:    service:vpn-s1
     #healthcheck:
     ##  test: ["CMD-SHELL", "exec 3<> /dev/tcp/0.0.0.0/3633 ; cat <&3 ; exec 3<&-"]
