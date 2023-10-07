@@ -42,33 +42,11 @@ jobs:
       run: |
         export $(grep -v '^#' nehalem.env | xargs -0)
     
-    # TODO new image
-    - name: Configure GPG Key
-      run: |
-        echo -n "$GPG_SIGNING_KEY" | gpg --import
-        #echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
-      env:
-        GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
-
-    - name: Sign Installation Package
-      run: |
-        gpg --yes --detach-sig Dockerfile
-        gpg --yes --detach-sig docker-compose.yaml
-    
     - name: Bump version and push tag
       id:   tag_version
       uses: mathieudutour/github-tag-action@v6.1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: ${{ steps.tag_version.outputs.new_tag }}
-        fail_on_unmatched_files: true
-        generate_release_notes: true
-        files: |
-          *
 
     # TODO new image
     - name: Authenticate with Docker Hub
@@ -94,4 +72,26 @@ jobs:
     - name: Deploy Docker Image
       run: |
         docker push      innovanon/aircrack-pg
+
+    # TODO new image
+    - name: Configure GPG Key
+      run: |
+        echo -n "$GPG_SIGNING_KEY" | gpg --import
+        #echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
+      env:
+        GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+
+    - name: Sign Installation Package
+      run: |
+        gpg --yes --detach-sig Dockerfile
+        gpg --yes --detach-sig docker-compose.yaml
+    
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.tag_version.outputs.new_tag }}
+        fail_on_unmatched_files: true
+        generate_release_notes: true
+        files: |
+          *
 
