@@ -51,10 +51,10 @@ WORKDIR /aircrack-ng
 ARG NPROC
 
 ARG  CFLAGS
-ENV  CFLAGS=" $CFLAGS -fprofile-use=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -momit-leaf-frame-pointer -Ofast -g0 -fmerge-all-constants -fomit-frame-pointer -ftree-parallelize-loops=$NPROC"
+ENV  CFLAGS=" $CFLAGS -fprofile-use=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path"
 
 ARG LDFLAGS
-ENV LDFLAGS="$LDFLAGS -fprofile-use=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -fmerge-all-constants -fomit-frame-pointer -ftree-parallelize-loop=$NPROC -lgcov"
+ENV LDFLAGS="$LDFLAGS -fprofile-use=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path"
 
 ARG SIMD
 
