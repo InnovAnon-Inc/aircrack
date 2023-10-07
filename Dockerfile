@@ -50,10 +50,10 @@ ARG NPROC
 
   #-msse5                                -mavx
 ARG  CFLAGS
-ENV  CFLAGS=" $CFLAGS -fprofile-generate=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -momit-leaf-frame-pointer -Ofast -g0 -fmerge-all-constants -fomit-frame-pointer -ftree-parallelize-loops=$NPROC"
+ENV  CFLAGS=" $CFLAGS -fprofile-generate=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path"
 
 ARG LDFLAGS
-ENV LDFLAGS="$LDFLAGS -fprofile-generate=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -fmerge-all-constants -fomit-frame-pointer -ftree-parallelize-loops=$NPROC -lgcov"
+ENV LDFLAGS="$LDFLAGS -fprofile-generate=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -lgcov"
 
 ARG SIMD
 
