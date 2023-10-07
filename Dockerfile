@@ -2,12 +2,10 @@ FROM kalilinux/kali-rolling as build
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt update
-
-RUN apt full-upgrade -y            \
-    --no-install-recommends
-
-RUN apt install      -y            \
+RUN apt update                     \
+&&  apt full-upgrade -y            \
+    --no-install-recommends        \
+&&  apt install      -y            \
     --no-install-recommends        \
     autoconf                       \
     automake                       \
@@ -33,9 +31,8 @@ RUN apt install      -y            \
     tcpdump                        \
     usbutils                       \
     wpasupplicant                  \
-    zlib1g-dev
-
-RUN apt autoremove   -y            \
+    zlib1g-dev                     \
+&&  apt autoremove   -y            \
     --purge                        \
 &&  apt clean        -y            \
 &&  rm -rf /var/lib/apt/lists/*
@@ -59,18 +56,17 @@ ENV LDFLAGS="$LDFLAGS -fprofile-use=/var/teamhack/pgo/aircrack-ng.prof -fprofile
 ARG SIMD
 
 # TODO reasonable way to upload PGO data
-COPY ./pgo/* /var/teamhack/pgo/
-RUN autoreconf -fi
-RUN ./configure    \
-  --without-opt    \
-  --disable-shared \
-  --enable-static  \
-  "--with-static-simd=$SIMD"
-RUN make
-RUN make install-strip
-
-RUN       command -v aircrack-ng
-RUN ldd $(command -v aircrack-ng)
+COPY ./pgo/aircrack-ng.prof /var/teamhack/pgo/
+RUN autoreconf -fi               \
+&&  ./configure                  \
+  --without-opt                  \
+  --disable-shared               \
+  --enable-static                \
+  "--with-static-simd=$SIMD"     \
+&&  make                         \
+&&  make install-strip           \
+&&        command -v aircrack-ng \
+&&  ldd $(command -v aircrack-ng)
 
 FROM scratch
 COPY --from=build /usr/local/bin/aircrack-ng /usr/local/bin/
@@ -91,7 +87,6 @@ COPY --from=build                                  \
 
 WORKDIR  /var/teamhack
 VOLUME ["/var/teamhack/caps"]
-VOLUME ["/var/teamhack/pgo"]
 VOLUME ["/var/teamhack/psks"]
 VOLUME ["/var/teamhack/wordlists"]
 ENTRYPOINT [                                        \
