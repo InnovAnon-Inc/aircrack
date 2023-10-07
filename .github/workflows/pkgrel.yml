@@ -22,6 +22,8 @@ jobs:
     
     - name: Checkout Code
       uses: actions/checkout@v3
+      with:
+        path:              repo
       
     - name: Checkout AirCrack-NG Submodule
       uses: actions/checkout@v3
@@ -35,12 +37,14 @@ jobs:
     
     - name: Move AirCrack-NG into Place
       run: |
-        mv -v  main/aircrack-ng main/.github/config/nehalem.env ./
+        mv -v  main/aircrack-ng main/.github/config/*.env repo/
         rm -fr main
 
     - name: Load Environment Variables
+      working-directory: "repo"
       run: |
-        sed 's/^ *#/d; /^ *$/d' nehalem.env | while read -r line ; do export $line ; done
+        sed 's/^ *#/d; /^ *$/d' nehalem.env flags.env | \
+        while read -r line ; do export $line ; done
 
     - name: Bump version and push tag
       id:   tag_version
@@ -57,6 +61,7 @@ jobs:
         DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
 
     - name: Build Docker Image
+      working-directory: "repo"
       run: |
         docker build -t "innovanon/aircrack-pgo:$TEAMHACK_VERSION" .
       env:
@@ -82,6 +87,7 @@ jobs:
         GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
 
     - name: Sign Installation Package
+      working-directory: "repo"
       run: |
         gpg --yes --detach-sig Dockerfile
         gpg --yes --detach-sig docker-compose.yaml
@@ -93,5 +99,5 @@ jobs:
         fail_on_unmatched_files: true
         generate_release_notes: true
         files: |
-          *
+          repo/*
 
