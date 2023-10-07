@@ -46,12 +46,14 @@ WORKDIR /aircrack-ng
 
 #RUN find . -type f -exec sed -i 's@-O3@-Ofast@g' '{}' +
 
+ARG NPROC
+
   #-msse5                                -mavx
 ARG  CFLAGS
-ENV  CFLAGS=" $CFLAGS -fprofile-generate=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -march=native -mfpmath=sse+387 -momit-leaf-frame-pointer -mtune=native -Ofast -g0 -fmerge-all-constants -fomit-frame-pointer"
+ENV  CFLAGS=" $CFLAGS -fprofile-generate=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -momit-leaf-frame-pointer -Ofast -g0 -fmerge-all-constants -fomit-frame-pointer -ftree-parallelize-loops=$NPROC"
 
 ARG LDFLAGS
-ENV LDFLAGS="$LDFLAGS -fprofile-generate=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -lgcov"
+ENV LDFLAGS="$LDFLAGS -fprofile-generate=/var/teamhack/pgo/aircrack-ng.prof -fprofile-abs-path -fuse-linker-plugin -flto -fmerge-all-constants -fomit-frame-pointer -ftree-parallelize-loops=$NPROC -lgcov"
 
 ARG SIMD
 
@@ -64,8 +66,9 @@ RUN ./configure    \
 RUN make
 RUN make install-strip
 
-RUN       command -v aircrack-ng
-RUN ldd $(command -v aircrack-ng)
+RUN        command -v aircrack-ng
+RUN ldd  $(command -v aircrack-ng)
+RUN file $(command -v aircrack-ng)
 
 FROM scratch
 COPY --from=build /usr/local/bin/aircrack-ng /usr/local/bin/
